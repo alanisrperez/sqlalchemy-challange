@@ -41,8 +41,8 @@ def homepage():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/start/<start><br/>"
-        f"/api/v1.0/start/<start>/end/<end>"
+        f"/api/v1.0/start/2016-8-23<br/>"
+        f"/api/v1.0/start/2016-8-23/end/2017-8-23"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -90,10 +90,10 @@ def tobs():
 
 @app.route('/api/v1.0/start/<start>')
 def start(start):
-    start_date = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    start = dt.date(2017, 8, 23) - dt.timedelta(days=365)
     temp_stats = [func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)]
     temp_stats_result = session.query(*temp_stats).\
-        filter(measurement.date >= start_date).all()
+        filter(measurement.date >= start).all()
 
     # Format the result as a dictionary
     temp_stats_dict = {
@@ -107,14 +107,14 @@ def start(start):
 
 @app.route('/api/v1.0/start/<start>/end/<end>')
 def date_range(start, end):
-    start_date = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    end_date_eq = session.query(measurement.date).order_by(desc(measurement.date)).first()
-    end_date_str = end_date_eq[0]
-    end_date = dt.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    start = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    end_eq = session.query(measurement.date).order_by(desc(measurement.date)).first()
+    end_str = end_eq[0]
+    end = dt.datetime.strptime(end_str, '%Y-%m-%d').date()
     temp_stats = [func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)]
     temp_stats_result = session.query(*temp_stats).\
-        filter(measurement.date >= start_date).\
-        filter(measurement.date <= end_date).all()
+        filter(measurement.date >= start).\
+        filter(measurement.date <= end).all()
     
     # Format the result as a dictionary
     temp_stats_dict = {
